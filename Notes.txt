@@ -1,0 +1,22 @@
+		***** I²C - Inter-Integrated Circuit Interface *****
+
+The device operates as a slave by default. It switches to master mode when sends a START condition to I²C bus and return to slave mode when sends STOP. Due to that the STM32F103C8 has multimaster capability.
+
+The START and STOP commands must be sent by software. So, you need to add them in your program in order to make the communication work.
+- START bit: SDA falling edge, SCL high
+- STOP bit: SDA rising edge, SCL high
+
+Data address are transferred as 8-bit bytes, beginning from MSB. The first byte following the address contains the address, which is always transmitted in Master mode. The ACK bit (optional) is transmitted during the 9th clock pulse. ACK is followed by STOP bit.
+
+I²C Master Mode:
+- Sends START and STOP conditions and generates clock signal
+- Master mode initiates when START condition is established
+- Minimum peripheral clock frequencies required for I²C works:
+	2 MHz for standard mode
+	4 MHz for fast mode
+- Configuring master mode:
+	- Program the peripheral input clock in I2C_CR2 register in order to 	generate correct timings
+	- Configure the clock control registers
+	- Configure the rise time register
+	- Program the I2C_CR1 register to enable the peripheral
+	- Set the START bit in the I2C_CR1 register to generate a start condition
