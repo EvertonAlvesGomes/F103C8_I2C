@@ -15,6 +15,7 @@
 
 //MPU6050 and I2C constants
 #define MPU6050_ADD					0x68	//Accelerometer I2C address
+#define MPU6050_ADD_8BIT			0xD0	//Accelerometer I2C 8-bit address
 #define MPU6050_ADD_WRITE			0xD0	//Address with write command
 #define MPU6050_ADD_READ			0xD1	//Address with read command
 #define MPU6050_START_BIT			0x01 << 8	//Sends start bit to MPU6050
@@ -144,19 +145,33 @@
 
 
 //Header functions
+
+void mpu6050_init(void);
 void mpu6050_begin(void);
 void mpu6050_write(uint8_t reg, uint8_t data);
-void mpu6050_config_sample_rate(uint8_t smplrt);
-void mpu6050_config_clock_source(uint8_t clk_src);
-void mpu6050_config_accel_scale(uint8_t scale);
-void mpu6050_config_gyro_scale(uint8_t scale);
-void mpu6050_config_dlpf(uint8_t bandwidth);
+//void mpu6050_config_sample_rate(uint8_t smplrt);
+_Bool mpu6050_config_sample_rateu(uint8_t smplrt);
+//void mpu6050_config_clock_source(uint8_t clk_src);
+_Bool mpu6050_config_clock_source(uint8_t clk_src);
+//void mpu6050_config_accel_scale(uint8_t scale);
+_Bool mpu6050_config_accel_scale(uint8_t scale);
+//void mpu6050_config_gyro_scale(uint8_t scale);
+_Bool mpu6050_config_gyro_scale(uint8_t scale);
+//void mpu6050_config_dlpf(uint8_t bandwidth);
+_Bool mpu6050_config_dlpf(uint8_t bandwidth);
 int8_t mpu6050_read(uint8_t reg);
 _Bool mpu6050_ack_ok();
 void mpu6050_send_nack();
+void mpu6050_send_stop();
+void mpu6050_send_start();
+void mpu6050_clear_start();
+void mpu6050_clear_stop();
+_Bool mpu6050_rx_not_empty();
 
 
 //Variables
 extern I2C_HandleTypeDef hi2c1;
+extern uint8_t buffer[2];
+extern HAL_StatusTypeDef ret;
 
 #endif //end of header file

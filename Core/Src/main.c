@@ -22,7 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "mpu6050.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -56,7 +56,9 @@ static void MX_I2C1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+int8_t data;
+uint8_t buffer[2];
+HAL_StatusTypeDef ret;
 /* USER CODE END 0 */
 
 /**
@@ -66,7 +68,7 @@ static void MX_I2C1_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	int8_t data;
+	int16_t x_axis, y_axis, z_axis;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -90,7 +92,9 @@ int main(void)
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
 
-  mpu6050_begin();
+  //mpu6050_begin();
+  mpu6050_init();
+
 
   /* USER CODE END 2 */
 
@@ -101,7 +105,20 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  data = mpu6050_read(MPU_REG_GYRO_CONFIG);
+	  //data = mpu6050_read(MPU_REG_ACCEL_XOUT_L);
+	  buffer[0] = MPU_REG_WHO_AM_I;
+	  ret = HAL_I2C_Master_Transmit(&hi2c1, MPU6050_ADD_8BIT, buffer, 1, HAL_MAX_DELAY);
+	  if(ret == HAL_OK) {
+		  ret = HAL_I2C_Master_Receive(&hi2c1, MPU6050_ADD_8BIT, buffer, 1, HAL_MAX_DELAY);
+	  }
+	  data = buffer[0];
+	  x_axis = (int16_t)(buffer[0] << 8) | buffer[1];
+	  //Convert to 2's complement, since acceleration can be negative
+	  if(x_axis > 0x7FF) {
+		  x_axis |= 0xF000;
+	  }
+	  HAL_Delay(500);
+
   }
   /* USER CODE END 3 */
 }
@@ -175,7 +192,7 @@ static void MX_I2C1_Init(void)
   /* USER CODE BEGIN I2C1_Init 2 */
 
   hi2c1.Instance->CR1 |= I2C_PERIPH_ENABLE;   //Enabling I2C peripheral
-  hi2c1.Instance->CR1 |= I2C_ACK_ENABLE;	//Enabling ACK
+  //hi2c1.Instance->CR1 |= I2C_ACK_ENABLE;	//Enabling ACK
 
   /* USER CODE END I2C1_Init 2 */
 
